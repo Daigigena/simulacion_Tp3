@@ -99,38 +99,40 @@ def partida():
 def reporte():
     global tiempo_medio_llegada, tiempo_medio_servicio, total_clientes, num_clientes, ancc, tiempo_total_demoras
     global time, tiempo_ser_acum
-    print('======================')
     print('Sistema de cola simple')
     print('======================')
     print('Tiempo medio entre arribos:' ,tiempo_medio_llegada,'minutos')
     print('Tiempo medio servicio',tiempo_medio_servicio,'minutos')
     print('Numero maximo de clientes', total_clientes)
     avgncc=ancc/time
-    print('Numero de promedio de clientes en cola', avgncc)
+    print('Numero de promedio de clientes en cola', round(avgncc,2))
     avgdel=tiempo_total_demoras/num_clientes
-    print('Demora promedio en cola:',avgdel)
+    print('Demora promedio en cola:',round(avgdel,2), 'minutos.')
     avgustserv=tiempo_ser_acum/time
-    print('Utilización promedio del servidor:' ,avgustserv)
+    print('Utilización promedio del servidor:' ,"{:.2%}".format(avgustserv))
     return avgncc, avgdel,avgustserv
 
 
-def programa_principal(l,mu):
+def programa_principal(m,l):
     global num_clientes, total_clientes, tipo_prox_evento, tiempo_prox_evento, tiempo_medio_llegada
     global tiempo_medio_servicio
-    tiempo_medio_llegada= l
-    tiempo_medio_servicio= mu
+    tiempo_medio_llegada= m
+    tiempo_medio_servicio= l
     inicializar()
-    print('INICIALIZACION COMPLETA')
     while (num_clientes <= total_clientes):
         timing()
         if tipo_prox_evento ==1:
             arribos()
-            print('ARRIBO')
         else:
             partida()
-            print('PARTIDA')
     else:
        reporte()
     return reporte
 
-programa_principal(2,3)
+
+tiempo_medio_llegada= int(input("Ingrese tiempo medio de arribos (minutos): "))
+tiempo_medio_servicio= int(input("Ingrese tiempo medio de servicio (minutos): "))
+print('=====================================================')
+for i in range(10):
+    programa_principal(tiempo_medio_llegada,tiempo_medio_servicio)
+    print('=====================================================')
