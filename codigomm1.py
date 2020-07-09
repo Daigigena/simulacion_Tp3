@@ -44,7 +44,7 @@ def timing():
     global time, arreglo_proximo_evento, tipo_prox_evento, tiempo_prox_evento, cant_tipo_evento
     tiempo_prox_evento=10.0**30
     tipo_prox_evento=0
-    for  i in range(1, cant_tipo_evento+1):
+    for i in range(1, cant_tipo_evento+1):
         if (arreglo_proximo_evento[i] < tiempo_prox_evento):
             tiempo_prox_evento=arreglo_proximo_evento[i]
             tipo_prox_evento=i
@@ -56,17 +56,16 @@ def timing():
 
 def arribos():
     global estado, tiempo_total_demoras, num_clientes, arreglo_tiempo_arribos, arreglo_proximo_evento
-    global ncc, tiempo_ser_acum
+    global ncc, ancc, tiempo_ser_acum
     arreglo_proximo_evento[1]=time+np.random.exponential(1/tiempo_medio_llegada)
     if (estado==1):
-        annc+=ncc*(time-tiempo_ult_evento)
-        tiempo_ult_evento= time
         ncc+=1
+        tiempo_ult_evento = time
+        ancc+=ncc*(time-tiempo_ult_evento)
         if (ncc <= total_clientes):
             arreglo_tiempo_arribos[ncc]=time
         else:
             print('Se alcanzó el límite de clientes a observar')
-
     else:
         demora =0.0
         estado =1
@@ -100,7 +99,9 @@ def partida():
 def reporte():
     global tiempo_medio_llegada, tiempo_medio_servicio, total_clientes, num_clientes, ancc, tiempo_total_demoras
     global time, tiempo_ser_acum
+    print('======================')
     print('Sistema de cola simple')
+    print('======================')
     print('Tiempo medio entre arribos:' ,tiempo_medio_llegada,'minutos')
     print('Tiempo medio servicio',tiempo_medio_servicio,'minutos')
     print('Numero maximo de clientes', total_clientes)
@@ -109,7 +110,7 @@ def reporte():
     avgdel=tiempo_total_demoras/num_clientes
     print('Demora promedio en cola:',avgdel)
     avgustserv=tiempo_ser_acum/time
-    print('Ütilización promedio del servidor:' ,avgustserv)
+    print('Utilización promedio del servidor:' ,avgustserv)
     return avgncc, avgdel,avgustserv
 
 
@@ -119,12 +120,17 @@ def programa_principal(l,mu):
     tiempo_medio_llegada= l
     tiempo_medio_servicio= mu
     inicializar()
+    print('INICIALIZACION COMPLETA')
     while (num_clientes <= total_clientes):
         timing()
         if tipo_prox_evento ==1:
             arribos()
+            print('ARRIBO')
         else:
             partida()
+            print('PARTIDA')
     else:
        reporte()
     return reporte
+
+programa_principal(2,3)
