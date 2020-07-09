@@ -120,6 +120,7 @@ def programa_principal(l,mu):
     tiempo_medio_servicio= mu
     inicializar()
     while (num_clientes <= total_clientes):
+        timing()
         if tipo_prox_evento ==1:
             arribos()
         else:
