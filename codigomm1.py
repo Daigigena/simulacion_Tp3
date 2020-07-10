@@ -2,9 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics
 # Variables globales
-cant_tipo_evento = 2# Defimos número de tipos de eventos (usamos 2: arribos y llegadas)
 # Criterio de estabilidad MM1: la tasa de servicio debe ser mayor que la tasa de llegada
-# tiempo medio de servicio   MU
+cant_tipo_evento = 2# Defimos número de tipos de eventos (usamos 2: arribos y llegadas)
 total_clientes = 200# número total de clientes cuyas demoras serán observadas
 time = 0.0# Reloj de simulación
 estado = 0 # 0: si el servidor está ocioso - 1: si el servidor está ocupado
@@ -85,7 +84,7 @@ def arribo():
         # agregamos uno al número de clientes que completaron su demora
         num_clientes += 1
         # generamos la salida
-        arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)# stats.expon(TIEMPO_# tiempo actual + valor generado exponencialmente con lambda = tiempo medio de servicio
+        arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)
         tiempo_servicio_acumulado += (arreglo_prox_event[2] - time)
 # Subrutina partidas
 def partida():
@@ -105,7 +104,7 @@ def partida():
         #agregamos uno al número de clientes que completaron su demora
         num_clientes += 1
         # calculamos la partida
-        arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)# stats.expon(TIEMPO_# tiempo actual + valor generado exponencialmente con lambda = tiempo medio de servicio
+        arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)
         tiempo_servicio_acumulado += (arreglo_prox_event[2] - time)
         # si la cola no está vacía, mover cada cliente de la cola en una posición
     if ncc != 0:
@@ -120,11 +119,6 @@ def partida():
 # Subrutina reportes
 def report():
     global tiempo_medio_llegada, tiempo_medio_servicio, total_clientes, num_clientes, ancc, tiempo_total_demoras, time, tiempo_servicio_acumulado
-    # mostramos encabezado y parámetros de entrada
-    # print("Sistema de cola simple")
-    # print("Tiempo medio entre arribos:", TIEMPO_MEDIO_LLEGADA,’ minutos’)# , ’. Tasa de llegadas:’, 1/TIEMPO_MEDIO_LLEGADA)
-    # print("Tiempo medio de servicio:", TIEMPO_MEDIO_SERVICIO,’ minutos’)# , ’. Tasa de servicio:’, 1/TIEMPO_MEDIO_SERVICIO)
-    # print("Número máximo de clientes:", TOTAL_CLIENTES)
     prom_clientes_sistema_calc = num_clientes / time # promedio de clientes en el sistema
     prom_clientes_cola_calc = ancc / time# print("Número promedio de clientes en cola", AVGNCC)
     prom_demora_sistema_calc=tiempo_total_demoras / total_clientes #demora promedio en el sistema
@@ -148,16 +142,16 @@ promedio_demora_cola = promedio_clientes_cola / tiempo_medio_llegada
 promedio_demora_sistema = promedio_demora_cola + 1 / tiempo_medio_servicio
 promedio_clientes_sistema = tiempo_medio_llegada * promedio_demora_sistema
 print('Valores teoricos')
-print('promedio clientes en cola', promedio_clientes_cola)
-print('promedio clientes en sistema', promedio_clientes_sistema)
-print('promedio demora en cola', promedio_demora_cola)
-print('promedio utilixacion del sistema', promedio_utilizacion_servidor)
+print('Promedio clientes en cola', promedio_clientes_cola)
+print('Promedio clientes en sistema', promedio_clientes_sistema)
+print('Promedio demora en cola', promedio_demora_cola)
+print('Promedio de utilizacion del sistema', promedio_utilizacion_servidor)
 print('=====================================================')
 util_corridas, demora_cola_corridas, clientes_cola_corridas, time_corridas, demora_sistema_corridas, clientes_sistema_corridas = [], [], [], [], [], []
 for i in range(10):
     time_acum, server_acum, niq_acum=[], [], []
     reporte = ()
-    # iniciamos la simulación, llamamos subrutina init
+    # iniciamos la simulación, llamamos subrutina inizializar
     inicializar()
     # si la simulación terminó, llamamos la rutina de reportes y fin de la simulación
     while num_clientes <= total_clientes:# no terminó simulación
