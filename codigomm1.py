@@ -130,8 +130,8 @@ def programa_principal(m,l):
     return reporte
 
 
-tiempo_medio_llegada= int(input("Ingrese tiempo medio de arribos (minutos): "))
-tiempo_medio_servicio= int(input("Ingrese tiempo medio de servicio (minutos): "))
+tiempo_medio_llegada= float(input("Ingrese tiempo medio de arribos (minutos): "))
+tiempo_medio_servicio= float(input("Ingrese tiempo medio de servicio (minutos): "))
 print('=====================================================')
 for i in range(10):
     programa_principal(tiempo_medio_llegada,tiempo_medio_servicio)
