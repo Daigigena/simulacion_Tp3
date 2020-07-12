@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import statistics
 # Variables globales
-# Criterio de estabilidad MM1: la tasa de servicio debe ser mayor que la tasa de llegada
 cant_tipo_evento = 2# Defimos número de tipos de eventos (usamos 2: arribos y llegadas)
 total_clientes = 200# número total de clientes cuyas demoras serán observadas
 time = 0.0# Reloj de simulación
@@ -18,7 +17,6 @@ tipo_prox_evento = 0 # tipo de evento (1: ARRIBOS o 2: PARTIDAS) del próximo ev
 arreglo_tiempos_arribo = np.zeros([total_clientes + 1]) # tiempo de arribo del cliente I que está esperando en cola
 tiempo_servicio_acumulado = 0.0
 area_server_status = 0.0
-# Subrutina init
 def inicializar():
     global time, estado, ncc, tiempo_ultimo_evento, num_clientes, area_server_status, tiempo_total_demoras, ancc, arreglo_prox_event, tiempo_prox_evento, tipo_prox_evento, arreglo_tiempos_arribo,tiempo_servicio_acumulado
     # inicializamos.0 el reloj de simulación
@@ -36,102 +34,75 @@ def inicializar():
     tipo_prox_evento = 0 # tipo de evento (1: ARRIBOS o 2: PARTIDAS) del próximo evento que va a ocurrir
     arreglo_tiempos_arribo = np.zeros([total_clientes + 1]) # tiempo de arribo del cliente I que está esperando en cola
     tiempo_servicio_acumulado = 0.0
-    # inicializamos lista de eventos. Como no hay clientes en cola, se define el tiempo de la próxima salida en infinito.
-    arreglo_prox_event[1] = time + np.random.exponential(1 / tiempo_medio_llegada)# stats.expon(TIEMPO_# tiempo actual + valor generado exponencialmente con lambda = tiempo medio de llegada
-    arreglo_prox_event[2] = 1e30 # Lo seteamos en infinito
+    arreglo_prox_event[1] = time + np.random.exponential(1 / tiempo_medio_llegada)
+    arreglo_prox_event[2] = 1e30 
     area_server_status = 0.0
     return None
-# Subrutina timing
 def timing():
     global time,arreglo_prox_event, tipo_prox_evento, tiempo_prox_evento, cant_tipo_evento
-    tiempo_prox_evento = 1e29 # tiempo de ocurrencia del próximo evento a ocurrir
+    tiempo_prox_evento = 1e29
     tipo_prox_evento = 0
-    # determinamos el tipo de evento del próximo evento que va a ocurrir
     for i in range(1, cant_tipo_evento + 1):
         if arreglo_prox_event[i] <tiempo_prox_evento:
             tiempo_prox_evento = arreglo_prox_event[i]
             tipo_prox_evento = i
-            # veo que la lista de eventos no esté vacia
     if tipo_prox_evento >0:
         time = tiempo_prox_evento
         return 0
-        # si la lista de eventos está vacía, fin de simulación
     else:
         print('Lista de eventos vacias. Fin de la simulacion')
         return 1
-# Subrutina arribos
 def arribo():
-    global estado,tiempo_total_demoras,num_clientes,arreglo_tiempos_arribo,arreglo_prox_event, tiempo_ultimo_evento, tiempo_servicio_acumulado, ancc, ncc #programamos el próximo arribo
-    arreglo_prox_event[1] = time + np.random.exponential(1 / tiempo_medio_llegada)# stats.expon(TIEMPO_# tiempo actual + valor generado exponencialmente con lambda = tiempo medio de llegada
-    # Vemos el estado del servidor, si está vacío (=0) comienza el servicio el cliente que arribó
-    if estado == 1: # servidor ocupado, actualizamos área debajo de la función número de clientes en cola
+    global estado,tiempo_total_demoras,num_clientes,arreglo_tiempos_arribo,arreglo_prox_event, tiempo_ultimo_evento, tiempo_servicio_acumulado, ancc, ncc 
+    arreglo_prox_event[1] = time + np.random.exponential(1 / tiempo_medio_llegada)
+    if estado == 1:
         ancc += ncc * (time - tiempo_ultimo_evento)
         tiempo_ultimo_evento = time
-        # agregamos uno al número de clientes en cola
         ncc += 1
-        # verificamos condición de máximos clientes en cola TOTAL_CLIENTES
         if ncc <= total_clientes:
-            # ARREGLO_TIEMPOS_ARRIBO: tiempo de arribo del cliente I que está esperando en cola
             arreglo_tiempos_arribo[ncc] = time
         else:
-            print('SE alcanxo el limite de clientes a observar')
+            print('Se alcanzó el limite de clientes a observar')
     else:
-        # servidor ocioso, cliente tiene demora nula
         DEMORA = 0.0
-        # cambiamos estado del servidor a ocupado
         estado = 1
         tiempo_total_demoras += DEMORA
-        # agregamos uno al número de clientes que completaron su demora
         num_clientes += 1
-        # generamos la salida
         arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)
         tiempo_servicio_acumulado += (arreglo_prox_event[2] - time)
-# Subrutina partidas
 def partida():
     global ncc, estado, ancc, time, tiempo_ultimo_evento, arreglo_tiempos_arribo, tiempo_total_demoras,arreglo_prox_event, DEMORA, num_clientes, tiempo_medio_servicio,tiempo_servicio_acumulado
-    # si la cola está vacía, cambiamos el estado del servidor a ocioso
-    # y seteamos el tiempo del próximo evento de partida en infinito
     if ncc >0:
-        # la cola no está vacía
-        # actualizamos el área debajo de la función de números de clientes en cola
         ancc += ncc * (time - tiempo_ultimo_evento)
         tiempo_ultimo_evento = time
-        # restamos uno del número de clientes en cola
-        ncc -= 1# NCC
-        # calculamos la demora del cliente que está comenzando el servicio
-        DEMORA = time - arreglo_tiempos_arribo[1]# Para mi esto está mal, en lugar de 1 debería ser NCC
+        ncc -= 1
+        DEMORA = time - arreglo_tiempos_arribo[1]
         tiempo_total_demoras += DEMORA
-        #agregamos uno al número de clientes que completaron su demora
         num_clientes += 1
-        # calculamos la partida
         arreglo_prox_event[2] = time + np.random.exponential(1 / tiempo_medio_servicio)
         tiempo_servicio_acumulado += (arreglo_prox_event[2] - time)
-        # si la cola no está vacía, mover cada cliente de la cola en una posición
     if ncc != 0:
         for i in range(1, ncc + 1):
             j = i + 1
             arreglo_tiempos_arribo[i]=arreglo_tiempos_arribo[j]
     else:
-    # marcamos el servidor como libre
         estado = 0
-        arreglo_prox_event[2] = 10.0 ** 30 # Lo seteamos en infinito
+        arreglo_prox_event[2] = 10.0 ** 30 
     return None
-# Subrutina reportes
 def report():
     global tiempo_medio_llegada, tiempo_medio_servicio, total_clientes, num_clientes, ancc, tiempo_total_demoras, time, tiempo_servicio_acumulado
-    prom_clientes_sistema_calc = num_clientes / time # promedio de clientes en el sistema
-    prom_clientes_cola_calc = ancc / time# print("Número promedio de clientes en cola", AVGNCC)
-    prom_demora_sistema_calc=tiempo_total_demoras / total_clientes #demora promedio en el sistema
-    prom_demora_cola_calc = tiempo_total_demoras / num_clientes # print("Demora promedio en cola:",AVGDEL,’ minutos’)
-    prom_ut_serv_calc = tiempo_servicio_acumulado / time # print(Ütilización promedio del servidor:",AVGUTSERV)
+    prom_clientes_sistema_calc = num_clientes / time 
+    prom_clientes_cola_calc = ancc / time
+    prom_demora_sistema_calc=tiempo_total_demoras / total_clientes 
+    prom_demora_cola_calc = tiempo_total_demoras / num_clientes 
+    prom_ut_serv_calc = tiempo_servicio_acumulado / time 
+    print('Sistema de cola simple')
     print("Numero promedio de clientes en el sistema: " , prom_clientes_sistema_calc)
     print('Numero promedio de clientes en cola', round(prom_clientes_cola_calc, 2))
     print("Demora promedio en el sistema: " + str(tiempo_total_demoras / total_clientes))
     print('Demora promedio en cola:', round(prom_demora_cola_calc, 2), 'minutos.')
     print('Utilización promedio del servidor:', "{:.2%}".format(prom_ut_serv_calc))
     return [prom_clientes_sistema_calc, prom_clientes_cola_calc, prom_demora_sistema_calc, prom_demora_cola_calc, prom_ut_serv_calc]
-# Programa principal
-# l:lambda; mu:mu
 tiempo_medio_llegada= float(input("Ingrese tiempo medio de arribos (minutos): "))
 tiempo_medio_servicio= float(input("Ingrese tiempo medio de servicio (minutos): "))
 print('=====================================================')
@@ -145,17 +116,14 @@ print('Valores teoricos')
 print('Promedio clientes en cola', promedio_clientes_cola)
 print('Promedio clientes en sistema', promedio_clientes_sistema)
 print('Promedio demora en cola', promedio_demora_cola)
-print('Promedio de utilizacion del sistema', promedio_utilizacion_servidor)
+print('Promedio utilización del sistema', promedio_utilizacion_servidor)
 print('=====================================================')
-util_corridas, demora_cola_corridas, clientes_cola_corridas, time_corridas, demora_sistema_corridas, clientes_sistema_corridas = [], [], [], [], [], []
+util_corridas, demora_cola_corridas, clientes_cola_corridas, time_corridas, demora_sistema_corridas, clientes_sistema_corridas, contNCC, probNCC = [], [], [], [], [], [], [0] * 50, []
 for i in range(10):
     time_acum, server_acum, niq_acum=[], [], []
     reporte = ()
-    # iniciamos la simulación, llamamos subrutina inizializar
     inicializar()
-    # si la simulación terminó, llamamos la rutina de reportes y fin de la simulación
-    while num_clientes <= total_clientes:# no terminó simulación
-    # determinamos próximo evento, llamamos subrutina timing
+    while num_clientes <= total_clientes:
         timing()
         if timing() == 0:
             # update_time_avg_stats()
@@ -166,12 +134,10 @@ for i in range(10):
             niq_acum.append(ncc)
             ancc = ancc + (ncc * time_since_last_event)
             area_server_status = area_server_status + (estado * time_since_last_event)
-    # vemos qué tipo de evento es el próximo
             if tipo_prox_evento == 1:
-            # llamamos la rutina de arribos de eventos
                 arribo()
             else:
-                # llamamos la rutina de partidas
+                contNCC[ncc] +=1  #si hay 0 clientes en cola suma 1 a su contador, si hay 1 suma 1 y así
                 partida()
         elif timing() == 1:
             break# terminó simulación
@@ -197,14 +163,56 @@ def graficar(proms, prom_esp, tit, ylbl):
     plt.show()
 
 
+def grafico_probNegacion_probNclientes(probabilidad1, probabilidad2):
+    n_clientes_esperados, n_clientes_observados, probs2 = [], [], []
+    n_clientes_esperados.append(probabilidad2)
+    n_clientes_observados.append(1 - probabilidad1[0])
+    for j in [0, 2, 5, 10, 50]: #probabilidad de denegacion de servicio para cola finita de tamaño 0, 2,5 ,10, 50
+        n_clientes_esperados.append(1 - sum((probabilidad2) ** i * (1 - probabilidad2) for i in range(j)))
+        n_clientes_observados.append(1 - sum(probabilidad1[i] for i in range(j)))
+
+    print("Probabilidad de denegación de servicio observadas:", n_clientes_observados)
+    print("Probabilidad de denegacion de servicio esperadas:", n_clientes_esperados)
+    for i in range(len(probabilidad1)):
+        if probabilidad1[i] > 0:
+            probs2.append(probabilidad1[i])
+    #grafico probabilidad de N clientes en cola
+    plt.subplot(121)
+    plt.title("Probabilidades de N clientes en cola")
+    plt.xlabel('N clientes')
+    plt.ylabel("Prob N clientes")
+    plt.bar([x for x in range(len(probs2))], [(probabilidad2 ** i) * (1 - probabilidad2) for i in range(len(probs2))], label="Prob de N clientes esperada",
+            color="black", width=0.25)
+    plt.bar([x + 0.25 for x in range(len(probs2))], probs2, label="Prob de N clientes observada", color="red", width=0.25)
+    plt.xticks([x + 0.15 for x in range(len(probs2))], [x for x in range(len(probs2))])
+    plt.legend(loc='upper right')
+    #grafico probabilidad de denegacion
+    plt.subplot(122)
+    plt.title("Probabilidades de denegación de servicio")
+    plt.xlabel('N clientes')
+    plt.ylabel('Prob de denegacion')
+    plt.bar([x for x in range(len(n_clientes_esperados))], n_clientes_esperados, label="Prob de denegación esperada", color="black", width=0.25)
+    plt.bar([x + 0.25 for x in range(len(n_clientes_esperados))], n_clientes_observados, label="Prob de denegacion observada", color="red", width=0.25)
+    plt.xticks([x + 0.15 for x in range(len(n_clientes_observados))], ['0', '2', '5', '10', '50'])
+    plt.legend(loc='upper right')
+    plt.show()
+
+for j in range(len(contNCC)):
+    probNCC.append(contNCC[j]/sum(contNCC))
 print("\nPromedios de las corridas: ====")
 print("Promedio de la utilizacion del servidor: ", np.mean(util_corridas))
 print("Promedio de tiempo promedio en cola:", np.mean(demora_cola_corridas))
 print("Promedio de numero de clientes promedio en cola:", np.mean(clientes_cola_corridas))
 print("Promedio de tiempo promedio en el sistema:", np.mean(demora_sistema_corridas))
 print("Promedio de numero de clientes promedio en el sistema:", np.mean(clientes_sistema_corridas))
-graficar(util_corridas, promedio_utilizacion_servidor, 'Utilización del servidor', 'B(t)') 
-graficar(demora_cola_corridas, promedio_demora_cola, 'Demora promedio en cola', 'Dq(n)')   
-graficar(clientes_cola_corridas, promedio_clientes_cola, 'Clientes promedio en cola', 'Q(t)')    
-graficar(demora_sistema_corridas, promedio_demora_sistema, 'Demora promedio en el sistema', 'Ds(n)')    
-graficar(clientes_sistema_corridas, promedio_clientes_sistema, 'Clientes promedio en el sistema', 'S(t)')   
+for j in range(len(probNCC)):
+    if probNCC[j] > 0:
+        print('Probabilidad de que haya {0} clientes en cola: {1}%'.format(j, probNCC[j]*100))  #Pn
+print("Prob acumulada: ", sum(probNCC))
+
+graficar(clientes_sistema_corridas, promedio_clientes_sistema, 'Clientes promedio en el sistema', 'S(t)')
+graficar(clientes_cola_corridas, promedio_clientes_cola, 'Clientes promedio en cola', 'Q(t)')
+graficar(demora_sistema_corridas, promedio_demora_sistema, 'Demora promedio en el sistema', 'Ds(n)')
+graficar(demora_cola_corridas, promedio_demora_cola, 'Demora promedio en cola', 'Dq(n)')
+graficar(util_corridas, promedio_utilizacion_servidor, 'Utilización del servidor', 'B(t)')
+grafico_probNegacion_probNclientes(probNCC ,promedio_utilizacion_servidor)
